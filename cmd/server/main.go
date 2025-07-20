@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,19 +15,47 @@ import (
 	"go-backend-service/internal/server"
 )
 
-const (
-	grpcPort  = ":50051"
-	httpPort  = ":8080"
-	dbConnStr = "postgres://postgres:passDblocal@localhost:5432/grpc_product?sslmode=disable"
-)
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getDatabaseURL() string {
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("DB_USER", "postgres")
+	password := getEnv("DB_PASSWORD", "passDblocal")
+	dbname := getEnv("DB_NAME", "grpc_product")
+	
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, port, dbname)
+}
 
 func main() {
+	// Get configuration from environment
+	grpcPort := getEnv("GRPC_PORT", ":50051")
+	httpPort := getEnv("HTTP_PORT", ":8080")
+	dbConnStr := getDatabaseURL()
+	
+	log.Printf("Starting server with config:")
+	log.Printf("  HTTP Port: %s", httpPort)
+	log.Printf("  gRPC Port: %s", grpcPort)
+	log.Printf("  Database: %s", getDatabaseURL())
+	
 	// Initialize DB
 	db, err := sql.Open("postgres", dbConnStr)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
+
+	// Test database connection
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+	log.Println("Database connection established successfully")
 
 	go server.StartGRPCServer(db, grpcPort)
 
@@ -58,7 +87,10 @@ func main() {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
-	server.StartHTTPGateway(ctx, mux, db, "localhost"+grpcPort)
+	// In Docker, services communicate using service names
+	grpcHost := getEnv("GRPC_HOST", "localhost")
+	grpcEndpoint := grpcHost + grpcPort
+	server.StartHTTPGateway(ctx, mux, db, grpcEndpoint)
 	/*
 		opts := []grpcpkg.DialOption{grpcpkg.WithTransportCredentials(insecure.NewCredentials())}
 

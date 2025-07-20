@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+README-DOCKER.md
+*.md
+
+# Development files
+.env
+.env.local
+.env.example
+
+# Build artifacts
+tmp/
+build/
+dist/
+
+# Node modules (Swagger UI)
+node_modules/
+npm-debug.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*_test.go
+test/
+tests/
+
+# Temporary files
+*.tmp
+*.temp

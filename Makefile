@@ -52,3 +52,67 @@ seed-db:
 .PHONY: setup-full
 setup-full: reset-db seed-db
 	@echo "Database setup completed with test data."
+
+# ==========================================
+# Docker Development Commands
+# ==========================================
+
+.PHONY: docker-dev
+docker-dev:
+	@echo "🐳 Starting Docker development environment..."
+	@./docker-dev.sh
+
+.PHONY: docker-up
+docker-up:
+	@echo "🚀 Starting Docker services..."
+	@docker-compose up --build
+
+.PHONY: docker-up-detached
+docker-up-detached:
+	@echo "🚀 Starting Docker services in background..."
+	@docker-compose up --build -d
+
+.PHONY: docker-down
+docker-down:
+	@echo "🛑 Stopping Docker services..."
+	@docker-compose down
+
+.PHONY: docker-down-volumes
+docker-down-volumes:
+	@echo "🗑️  Stopping Docker services and removing volumes..."
+	@docker-compose down -v
+
+.PHONY: docker-build
+docker-build:
+	@echo "🔨 Building Docker images..."
+	@docker-compose build
+
+.PHONY: docker-logs
+docker-logs:
+	@echo "📋 Showing Docker logs..."
+	@docker-compose logs -f app
+
+.PHONY: docker-logs-db
+docker-logs-db:
+	@echo "📋 Showing PostgreSQL logs..."
+	@docker-compose logs -f postgres
+
+.PHONY: docker-db-reset
+docker-db-reset: docker-down-volumes docker-up-detached
+	@echo "🔄 Database reset completed in Docker."
+
+.PHONY: docker-shell
+docker-shell:
+	@echo "🐚 Opening shell in app container..."
+	@docker-compose exec app sh
+
+.PHONY: docker-db-shell
+docker-db-shell:
+	@echo "🐚 Opening PostgreSQL shell..."
+	@docker-compose exec postgres psql -U postgres -d grpc_product
+
+.PHONY: docker-clean
+docker-clean:
+	@echo "🧹 Cleaning up Docker resources..."
+	@docker-compose down -v
+	@docker system prune -f

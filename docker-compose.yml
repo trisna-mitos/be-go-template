@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: grpc_product_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-grpc_product}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-passDblocal}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./scripts/seed_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-grpc_product}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  migrate:
+    image: migrate/migrate
+    container_name: grpc_product_migrate
+    volumes:
+      - ./migrations:/migrations
+    command: >
+      -path=/migrations
+      -database=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-passDblocal}@postgres:5432/${DB_NAME:-grpc_product}?sslmode=disable
+      up
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      target: development
+    container_name: grpc_product_app
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-passDblocal}
+      DB_NAME: ${DB_NAME:-grpc_product}
+      GRPC_PORT: ${GRPC_PORT:-:50051}
+      HTTP_PORT: ${HTTP_PORT:-:8080}
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+      - "${GRPC_PORT:-50051}:50051"
+    volumes:
+      - .:/app
+      - /app/static/swagger-ui/node_modules  # Exclude node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
