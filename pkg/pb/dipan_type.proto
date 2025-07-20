@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "go-backend-service/pkg/pb";
+
+import "google/api/annotations.proto";
+
+service DipanTypeService {
+  rpc CreateDipanType(CreateDipanTypeRequest) returns (DipanType) {
+    option (google.api.http) = {
+      post: "/v1/dipan-types"
+      body: "*"
+    };
+  }
+  rpc GetDipanType(GetDipanTypeRequest) returns (DipanType) {
+    option (google.api.http) = {
+      get: "/v1/dipan-types/{id}"
+    };
+  }
+  rpc ListDipanTypes(ListDipanTypesRequest) returns (ListDipanTypesResponse) {
+    option (google.api.http) = {
+      get: "/v1/dipan-types"
+    };
+  }
+  rpc UpdateDipanType(UpdateDipanTypeRequest) returns (DipanType) {
+    option (google.api.http) = {
+      put: "/v1/dipan-types/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteDipanType(DeleteDipanTypeRequest) returns (DeleteDipanTypeResponse) {
+    option (google.api.http) = {
+      delete: "/v1/dipan-types/{id}"
+    };
+  }
+}
+
+message DipanType {
+  int32 id = 1;
+  string nama_type = 2;
+}
+
+message CreateDipanTypeRequest {
+  string nama_type = 1;
+}
+
+message GetDipanTypeRequest {
+  int32 id = 1;
+}
+
+message ListDipanTypesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message ListDipanTypesResponse {
+  repeated DipanType dipan_types = 1;
+  int32 total = 2;
+}
+
+message UpdateDipanTypeRequest {
+  int32 id = 1;
+  string nama_type = 2;
+}
+
+message DeleteDipanTypeRequest {
+  int32 id = 1;
+}
+
+message DeleteDipanTypeResponse {
+  bool success = 1;
+}

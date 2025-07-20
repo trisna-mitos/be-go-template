@@ -1,0 +1,19 @@
+# Install gRPC dan protobuf dependencies
+go get google.golang.org/grpc
+go get google.golang.org/protobuf
+go get github.com/grpc-ecosystem/grpc-gateway/v2/runtime
+go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
+go get google.golang.org/protobuf/cmd/protoc-gen-go
+
+# Install database driver
+go get github.com/lib/pq
+
+# Install UUID generator
+go get github.com/google/uuid
+
+# Install gorilla/mux
+go get github.com/gorilla/mux
+
+# Tidy up dependencies
+go mod tidy
