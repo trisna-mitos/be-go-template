@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	gorilla "github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -35,14 +36,22 @@ func getDatabaseURL() string {
 
 func main() {
 	// Get configuration from environment
-	grpcPort := getEnv("GRPC_PORT", ":50051")
-	httpPort := getEnv("HTTP_PORT", ":8080")
+	grpcPort := getEnv("GRPC_PORT", "50051")
+	httpPort := getEnv("HTTP_PORT", "8080")
+	
+	// Add colon prefix if not present
+	if !strings.HasPrefix(grpcPort, ":") {
+		grpcPort = ":" + grpcPort
+	}
+	if !strings.HasPrefix(httpPort, ":") {
+		httpPort = ":" + httpPort
+	}
 	dbConnStr := getDatabaseURL()
 	
-	log.Printf("Starting server with config:")
-	log.Printf("  HTTP Port: %s", httpPort)
-	log.Printf("  gRPC Port: %s", grpcPort)
-	log.Printf("  Database: %s", getDatabaseURL())
+	log.Printf("🚀 Starting Go gRPC Backend Server with config:")
+	log.Printf("  📡 HTTP Port: %s", httpPort)
+	log.Printf("  🔧 gRPC Port: %s", grpcPort)
+	log.Printf("  💾 Database: %s", getDatabaseURL())
 	
 	// Initialize DB
 	db, err := sql.Open("postgres", dbConnStr)

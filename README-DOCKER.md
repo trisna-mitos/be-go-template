@@ -2,6 +2,8 @@
 
 This guide helps you set up the Go gRPC backend service for local development using Docker and Docker Compose.
 
+> 📖 **For complete API development tutorial**, see the main [README.md](README.md) which includes step-by-step guides for creating APIs from database migrations to working endpoints.
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) (version 20.10+)
@@ -165,7 +167,30 @@ GO_ENV=development
 
 ### Common Issues
 
-1. **Port Already in Use**
+1. **Docker Compose Command Not Found**
+   ```bash
+   # Install docker-compose for your system
+   # Linux/WSL:
+   mkdir -p ~/.local/bin
+   curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/.local/bin/docker-compose
+   chmod +x ~/.local/bin/docker-compose
+   export PATH=$PATH:~/.local/bin
+   ```
+
+2. **Docker Credential Issues**
+   ```bash
+   # Fix Docker Desktop credential helper error
+   mkdir -p ~/.docker
+   echo '{"credsStore":""}' > ~/.docker/config.json
+   ```
+
+3. **VCS Build Errors**
+   ```bash
+   # Already fixed in .air.toml with -buildvcs=false flag
+   # If you encounter VCS errors, check .air.toml build command
+   ```
+
+4. **Port Already in Use**
    ```bash
    # Check what's using the port
    lsof -i :8080
@@ -173,7 +198,7 @@ GO_ENV=development
    # Kill the process or change port in .env
    ```
 
-2. **Database Connection Failed**
+5. **Database Connection Failed**
    ```bash
    # Check if PostgreSQL is running
    make docker-logs-db
@@ -182,14 +207,14 @@ GO_ENV=development
    make docker-db-reset
    ```
 
-3. **Permission Denied on Scripts**
+6. **Permission Denied on Scripts**
    ```bash
    # Make scripts executable
    chmod +x docker-dev.sh
    chmod +x scripts/wait-for-db.sh
    ```
 
-4. **Hot Reload Not Working**
+7. **Hot Reload Not Working**
    ```bash
    # Check Air configuration
    docker-compose logs app
@@ -207,17 +232,47 @@ make docker-up
 ```
 
 ### Logs and Debugging
+
+**Real-time Log Monitoring**
 ```bash
-# View all service logs
+# Follow application logs in real-time (recommended for development)
+export PATH=$PATH:~/.local/bin && docker-compose logs -f app
+
+# Follow all services logs
+export PATH=$PATH:~/.local/bin && docker-compose logs -f
+
+# Last 50 lines of application logs
+export PATH=$PATH:~/.local/bin && docker-compose logs --tail=50 app
+
+# Database logs
+export PATH=$PATH:~/.local/bin && docker-compose logs -f postgres
+```
+
+**Container Status and Access**
+```bash
+# Check container status
+docker ps
+
+# Access app container shell for debugging
+export PATH=$PATH:~/.local/bin && docker-compose exec app sh
+
+# Access database shell
+export PATH=$PATH:~/.local/bin && docker-compose exec postgres psql -U postgres -d grpc_product
+```
+
+**Log Analysis**
+```bash
+# View all service logs (static)
 docker-compose logs
 
 # View specific service logs
 docker-compose logs app
-docker-compose logs postgres
+docker-compose logs postgres  
 docker-compose logs migrate
 
-# Follow logs in real-time
-docker-compose logs -f app
+# Search logs for specific terms
+docker-compose logs app | grep "ERROR"
+docker-compose logs app | grep "Starting"
 ```
 
 ## Production Deployment
@@ -237,10 +292,11 @@ docker run -p 8080:8080 -p 50051:50051 \
 
 ## Next Steps
 
-1. **API Testing**: Use Swagger UI at http://localhost:8080/swagger-ui/
-2. **gRPC Testing**: Use tools like [grpcurl](https://github.com/fullstorydev/grpcurl) or [BloomRPC](https://github.com/bloomrpc/bloomrpc)
-3. **Database Management**: Access PostgreSQL through the exposed port or container shell
-4. **Development**: Modify code and see changes automatically reload
+1. **Learn API Development**: See `README.md` for complete step-by-step guide to creating new APIs
+2. **API Testing**: Use Swagger UI at http://localhost:8080/swagger-ui/
+3. **gRPC Testing**: Use tools like [grpcurl](https://github.com/fullstorydev/grpcurl) or [BloomRPC](https://github.com/bloomrpc/bloomrpc)
+4. **Database Management**: Access PostgreSQL through the exposed port or container shell
+5. **Development**: Modify code and see changes automatically reload
 
 ## Support
 

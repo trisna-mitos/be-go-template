@@ -42,14 +42,16 @@ services:
       context: .
       target: development
     container_name: grpc_product_app
+    env_file:
+      - .env
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-passDblocal}
       DB_NAME: ${DB_NAME:-grpc_product}
-      GRPC_PORT: ${GRPC_PORT:-:50051}
-      HTTP_PORT: ${HTTP_PORT:-:8080}
+      HTTP_PORT: ":8080"
+      GRPC_PORT: ":50051"
     ports:
       - "${HTTP_PORT:-8080}:8080"
       - "${GRPC_PORT:-50051}:50051"

@@ -1,0 +1,80 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/main
+/tmp/
+/build/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Development build artifacts
+tmp/
+build-errors.log
+
+# Generated third-party APIs (regenerated via make proto)
+third_party/
+
+# Node.js dependencies and build artifacts for Swagger UI
+static/swagger-ui/node_modules/
+static/swagger-ui/dist/
+static/swagger-ui/flavors/*/dist/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker development artifacts
+.docker/
+docker-compose.override.yml
+
+# Air live reload
+.air.toml.local
+
+# Database development files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# Coverage reports
+coverage.txt
+coverage.html
+
+# Development notes and temporary files
+terminal
+notes.txt
+TODO.txt
